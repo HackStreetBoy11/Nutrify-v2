@@ -40,7 +40,7 @@ export const getTrackedFoods = query({
 export const deleteFood = mutation({
   args: { foodId: v.id("trackedFood") },
   handler: async (ctx, { foodId }) => {
-    await ctx.db.delete("trackedFood", foodId);
+    await ctx.db.delete( foodId);
     return { success: true };
   },
 });
