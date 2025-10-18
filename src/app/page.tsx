@@ -50,7 +50,7 @@ export default function LandingPage() {
           className="flex-1 flex justify-center"
         >
           <Image
-            src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800"
+            src="/Images/img1.jpg"
             alt="Healthy Food"
             width={500}
             height={400}
@@ -75,17 +75,17 @@ export default function LandingPage() {
             {
               title: "Daily Nutrient Tracking",
               desc: "Track calories, proteins, carbs, and fats in one place.",
-              img: "https://images.unsplash.com/photo-1556912167-f556f1f39df3?w=800",
+              img: "/Images/img2.png",
             },
             {
               title: "Visual Insights",
               desc: "See your progress through charts and insights that motivate you.",
-              img: "https://images.unsplash.com/photo-1576065435205-6f6b7d1a0f5d?w=800",
+              img: "/Images/img3.png",
             },
             {
               title: "Smart Recommendations",
               desc: "Get personalized food suggestions to meet your goals.",
-              img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800",
+              img: "/Images/img4.jpg",
             },
           ].map((feature, i) => (
             <motion.div

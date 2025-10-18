@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { LogOut, Apple, User } from "lucide-react";
+import { Apple, User, Search, Activity } from "lucide-react";
 
 const Navbar = () => {
     const { user, isSignedIn } = useUser();
@@ -29,14 +29,12 @@ const Navbar = () => {
                         {isSignedIn && (
                             <>
                                 <Link href="/dashboard" className="btn btn-sm gap-2">
-                                    <User className="size-5" />
-                                    <span className="hidden sm:inline">Search</span>
+                                    <Search size={20} /> Search
                                 </Link>
 
 
                                 <Link href="/track" className="btn btn-sm gap-2">
-                                    <User className="size-5" />
-                                    <span className="hidden sm:inline">Track</span>
+                                    <Activity size={20} /> Track
                                 </Link>
                                 {/* Clerk handles logout inside the UserButton */}
                                 <UserButton afterSignOutUrl="/" />

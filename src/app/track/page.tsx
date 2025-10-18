@@ -97,23 +97,23 @@ export default function TrackPageDemo() {
                     >
                         <div className="p-4 rounded-xl shadow-md bg-green-100 text-green-800">
                             <h3 className="text-sm font-medium">Calories</h3>
-                            <p className="text-2xl font-bold">{totals.calories}</p>
-                            <p className="text-xs">Goal: 2000</p>
+                            <p className="text-2xl font-bold">{(totals.calories).toFixed(2)}</p>
+                            {/* <p className="text-xs">Goal: 2000</p> */}
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-lime-100 text-lime-800">
                             <h3 className="text-sm font-medium">Protein</h3>
-                            <p className="text-2xl font-bold">{totals.protein}g</p>
-                            <p className="text-xs">Goal: 150g</p>
+                            <p className="text-2xl font-bold">{(totals.protein).toFixed(2)}g</p>
+                            {/* <p className="text-xs">Goal: 150g</p> */}
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-emerald-100 text-emerald-800">
                             <h3 className="text-sm font-medium">Carbs</h3>
-                            <p className="text-2xl font-bold">{totals.carbs}g</p>
-                            <p className="text-xs">Goal: 250g</p>
+                            <p className="text-2xl font-bold">{(totals.carbs).toFixed(2)}g</p>
+                            {/* <p className="text-xs">Goal: 250g</p> */}
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-teal-100 text-teal-800">
                             <h3 className="text-sm font-medium">Fats</h3>
-                            <p className="text-2xl font-bold">{totals.fats}g</p>
-                            <p className="text-xs">Goal: 70g</p>
+                            <p className="text-2xl font-bold">{(totals.fats).toFixed(2)}g</p>
+                            {/* <p className="text-xs">Goal: 70g</p> */}
                         </div>
                     </motion.div>
 
@@ -156,49 +156,57 @@ export default function TrackPageDemo() {
                                         cy="50%"
                                         outerRadius={90}
                                         dataKey="value"
-                                        label
+                                        label={({ name, value }) => `${name}: ${value.toFixed(2)}`} // rounded to 2 decimals
                                     >
                                         {COLORS.map((color, index) => (
                                             <Cell key={index} fill={color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <Tooltip formatter={(value: number) => value.toFixed(2)} /> {/* Tooltip rounded */}
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
                         </motion.div>
                     </div>
 
+
                     {/* Food Table */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="bg-white p-6 rounded-lg shadow-lg border border-green-100"
-                    >
-                        <h2 className="font-semibold mb-4 text-green-700">Food Log</h2>
-                        <table className="table-auto w-full border border-green-200 border-collapse">
-                            <thead className="bg-green-100">
-                                <tr>
-                                    <th className="p-3 border border-green-200">Food</th>
-                                    <th className="p-3 border border-green-200">Calories</th>
-                                    <th className="p-3 border border-green-200">Protein</th>
-                                    <th className="p-3 border border-green-200">Carbs</th>
-                                    <th className="p-3 border border-green-200">Fats</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {foodsForDate.map((f, i) => (
-                                    <tr key={i} className="hover:bg-green-50 transition-colors duration-200">
-                                        <td className="p-3 border border-green-200">{f.name}</td>
-                                        <td className="p-3 border border-green-200">{f.calories}</td>
-                                        <td className="p-3 border border-green-200">{f.protein}</td>
-                                        <td className="p-3 border border-green-200">{f.carbs}</td>
-                                        <td className="p-3 border border-green-200">{f.fats}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </motion.div>
+                    <div>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="bg-white p-6 rounded-lg shadow-lg border border-green-100"
+                        >
+                            <h2 className="font-semibold mb-4 text-green-700">Food Log</h2>
+
+                            {/* Make table scrollable */}
+                            <div className="overflow-x-auto">
+                                <table className="table-auto w-full border border-green-200 border-collapse min-w-[500px]">
+                                    <thead className="bg-green-100">
+                                        <tr>
+                                            <th className="p-3 border border-green-200">Food</th>
+                                            <th className="p-3 border border-green-200">Calories</th>
+                                            <th className="p-3 border border-green-200">Protein</th>
+                                            <th className="p-3 border border-green-200">Carbs</th>
+                                            <th className="p-3 border border-green-200">Fats</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {foodsForDate.map((f, i) => (
+                                            <tr key={i} className="hover:bg-green-50 transition-colors duration-200">
+                                                <td className="p-3 border border-green-200">{f.name}</td>
+                                                <td className="p-3 border border-green-200">{f.calories.toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{f.protein.toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{f.carbs.toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{f.fats.toFixed(2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </motion.div>
+                    </div>
+
                 </div>
             </SignedIn>
 
