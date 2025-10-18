@@ -2,7 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
- * ✅ Mutation: Add a tracked food entry
+ * Add a tracked food entry
  */
 export const addTrackedFood = mutation({
   args: {
@@ -14,14 +14,14 @@ export const addTrackedFood = mutation({
     carbs: v.optional(v.number()),
     fats: v.optional(v.number()),
     date: v.string(),
-
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("trackedFood", args);
   },
 });
+
 /**
- * ✅ Query: Get all tracked foods for a user
+ * Get all tracked foods for a user
  */
 export const getTrackedFoods = query({
   args: { userId: v.id("users") },
@@ -35,7 +35,7 @@ export const getTrackedFoods = query({
 });
 
 /**
- * ✅ Delete a tracked food entry by its ID
+ * Delete a tracked food entry by ID
  */
 export const deleteFood = mutation({
   args: { foodId: v.id("trackedFood") },

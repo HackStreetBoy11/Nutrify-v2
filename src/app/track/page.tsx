@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { SignedIn, SignedOut, RedirectToSignIn, useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { Trash2 } from "lucide-react";
-
 import { api } from "../../../convex/_generated/api";
 import {
     ResponsiveContainer,
@@ -20,14 +19,13 @@ import {
     Cell,
     Legend,
 } from "recharts";
+import { Id } from "../../../convex/_generated/dataModel";
 
 const COLORS = ["#22c55e", "#86efac", "#bbf7d0", "#166534"];
 
 // ✅ Type for tracked food entry
-import { Id } from "../../../convex/_generated/dataModel";
-
 type TrackedFood = {
-    _id: Id<"trackedFood">;
+    _id: string;
     userId: string;
     name: string;
     quantity: number;
@@ -40,30 +38,26 @@ type TrackedFood = {
 
 export default function TrackPageDemo() {
     const { user } = useUser();
-    const deleteFood = useMutation(api.trackedFood.deleteFood);
+    const deleteFoodMutation = useMutation(api.trackedFood.deleteFood);
 
     const [selectedDate, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
 
-    // ✅ Get Convex user
     const convexUser = useQuery(api.users.getUserByClerkId, {
         clerkId: user?.id || "",
     });
 
-    // ✅ Get tracked foods for that user
     const trackedFoods = useQuery(
         api.trackedFood.getTrackedFoods,
         convexUser?._id ? { userId: convexUser._id } : "skip"
     ) as TrackedFood[] | null;
 
-    // ✅ Filter foods by selected date
     const foodsForDate = useMemo(() => {
         if (!trackedFoods) return [];
         return trackedFoods.filter((f) => f.date === selectedDate);
     }, [trackedFoods, selectedDate]);
 
-    // ✅ Calculate totals
     const totals = foodsForDate.reduce(
         (acc, f) => ({
             calories: acc.calories + (f.calories || 0),
@@ -142,9 +136,7 @@ export default function TrackPageDemo() {
                             transition={{ delay: 0.2 }}
                             className="bg-white p-6 rounded-lg shadow-lg border border-green-100"
                         >
-                            <h2 className="font-semibold mb-4 text-green-700">
-                                Daily Nutrient Summary
-                            </h2>
+                            <h2 className="font-semibold mb-4 text-green-700">Daily Nutrient Summary</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={chartData}>
                                     <CartesianGrid strokeDasharray="3 3" />
@@ -162,9 +154,7 @@ export default function TrackPageDemo() {
                             transition={{ delay: 0.3 }}
                             className="bg-white p-6 rounded-lg shadow-lg border border-green-100"
                         >
-                            <h2 className="font-semibold mb-4 text-green-700">
-                                Macro Distribution
-                            </h2>
+                            <h2 className="font-semibold mb-4 text-green-700">Macro Distribution</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <PieChart>
                                     <Pie
@@ -173,19 +163,13 @@ export default function TrackPageDemo() {
                                         cy="50%"
                                         outerRadius={90}
                                         dataKey="value"
-                                        label={({ name, value }) =>
-                                            `${name}: ${Number(value || 0).toFixed(2)}`
-                                        }
+                                        label={({ name, value }) => `${name}: ${Number(value || 0).toFixed(2)}`}
                                     >
                                         {COLORS.map((color, index) => (
                                             <Cell key={index} fill={color} />
                                         ))}
                                     </Pie>
-
-                                    <Tooltip
-                                        formatter={(value: any) => Number(value || 0).toFixed(2)}
-                                    />
-
+                                    <Tooltip formatter={(value: any) => Number(value || 0).toFixed(2)} />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -200,7 +184,6 @@ export default function TrackPageDemo() {
                             className="bg-white p-6 rounded-lg shadow-lg border border-green-100"
                         >
                             <h2 className="font-semibold mb-4 text-green-700">Food Log</h2>
-
                             <div className="overflow-x-auto">
                                 <table className="table-auto w-full border border-green-200 border-collapse min-w-[500px]">
                                     <thead className="bg-green-100">
@@ -215,27 +198,16 @@ export default function TrackPageDemo() {
                                     </thead>
                                     <tbody>
                                         {foodsForDate.map((f) => (
-                                            <tr
-                                                key={f._id}
-                                                className="hover:bg-green-50 transition-colors duration-200"
-                                            >
+                                            <tr key={f._id} className="hover:bg-green-50 transition-colors duration-200">
                                                 <td className="p-3 border border-green-200">{f.name}</td>
-                                                <td className="p-3 border border-green-200">
-                                                    {Number(f.calories || 0).toFixed(2)}
-                                                </td>
-                                                <td className="p-3 border border-green-200">
-                                                    {Number(f.protein || 0).toFixed(2)}
-                                                </td>
-                                                <td className="p-3 border border-green-200">
-                                                    {Number(f.carbs || 0).toFixed(2)}
-                                                </td>
-                                                <td className="p-3 border border-green-200">
-                                                    {Number(f.fats || 0).toFixed(2)}
-                                                </td>
+                                                <td className="p-3 border border-green-200">{Number(f.calories || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.protein || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.carbs || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.fats || 0).toFixed(2)}</td>
                                                 <td className="p-3 border border-green-200">
                                                     <button
                                                         onClick={async () => {
-                                                            await deleteFood({ foodId: f._id });
+                                                            await deleteFoodMutation({ foodId: f._id as Id<"trackedFood"> });
                                                         }}
                                                         className="text-red-500 hover:text-red-700"
                                                     >
