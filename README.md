@@ -62,13 +62,10 @@ It combines a modern frontend with a powerful backend for seamless tracking and 
 
 🖼️ Project Preview
 <div align="center">
-  <img src="https://github.com/HackStreetBoy11/Nutrify-v2/blob/main/src/public/Images/img1.jpg?raw=true" alt="Screenshot 1" width="80%" />
+  <img src="https://github.com/HackStreetBoy11/Nutrify-v2/blob/master/public/Images/img2.png" alt="Screenshot 1" width="80%" />
   <br/><br/>
-  <img src="https://github.com/HackStreetBoy11/nutrify/blob/main/frontend/public/images/img2.png?raw=true" alt="Screenshot 2" width="80%" />
-  <br/><br/>
-  <img src="https://github.com/HackStreetBoy11/nutrify/blob/main/frontend/public/images/im3.png?raw=true" alt="Screenshot 3" width="80%" />
-  <br/><br/>
-  <img src="https://github.com/HackStreetBoy11/nutrify/blob/main/frontend/public/images/img4.png?raw=true" alt="Screenshot 4" width="80%" />
+  <img src="https://github.com/HackStreetBoy11/Nutrify-v2/blob/master/public/Images/img3.png" alt="Screenshot 2" width="80%" />
+  <br/>
 </div>
 
 🧩 Key Features
