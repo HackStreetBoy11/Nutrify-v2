@@ -33,3 +33,14 @@ export const getTrackedFoods = query({
       .collect();
   },
 });
+
+/**
+ * ✅ Delete a tracked food entry by its ID
+ */
+export const deleteFood = mutation({
+  args: { foodId: v.id("trackedFood") },
+  handler: async (ctx, { foodId }) => {
+    await ctx.db.delete("trackedFood", foodId);
+    return { success: true };
+  },
+});

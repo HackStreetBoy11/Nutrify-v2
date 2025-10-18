@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { SignedIn, SignedOut, RedirectToSignIn, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { Trash2 } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import {
@@ -22,8 +23,25 @@ import {
 
 const COLORS = ["#22c55e", "#86efac", "#bbf7d0", "#166534"];
 
+// ✅ Type for tracked food entry
+import { Id } from "../../../convex/_generated/dataModel";
+
+type TrackedFood = {
+    _id: Id<"trackedFood">;
+    userId: string;
+    name: string;
+    quantity: number;
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fats?: number;
+    date: string;
+};
+
 export default function TrackPageDemo() {
     const { user } = useUser();
+    const deleteFood = useMutation(api.trackedFood.deleteFood);
+
     const [selectedDate, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
@@ -34,7 +52,10 @@ export default function TrackPageDemo() {
     });
 
     // ✅ Get tracked foods for that user
-    const trackedFoods = useQuery(api.trackedFood.getTrackedFoods, convexUser?._id ? { userId: convexUser._id } : "skip");
+    const trackedFoods = useQuery(
+        api.trackedFood.getTrackedFoods,
+        convexUser?._id ? { userId: convexUser._id } : "skip"
+    ) as TrackedFood[] | null;
 
     // ✅ Filter foods by selected date
     const foodsForDate = useMemo(() => {
@@ -97,23 +118,19 @@ export default function TrackPageDemo() {
                     >
                         <div className="p-4 rounded-xl shadow-md bg-green-100 text-green-800">
                             <h3 className="text-sm font-medium">Calories</h3>
-                            <p className="text-2xl font-bold">{(totals.calories).toFixed(2)}</p>
-                            {/* <p className="text-xs">Goal: 2000</p> */}
+                            <p className="text-2xl font-bold">{totals.calories.toFixed(2)}</p>
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-lime-100 text-lime-800">
                             <h3 className="text-sm font-medium">Protein</h3>
-                            <p className="text-2xl font-bold">{(totals.protein).toFixed(2)}g</p>
-                            {/* <p className="text-xs">Goal: 150g</p> */}
+                            <p className="text-2xl font-bold">{totals.protein.toFixed(2)}g</p>
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-emerald-100 text-emerald-800">
                             <h3 className="text-sm font-medium">Carbs</h3>
-                            <p className="text-2xl font-bold">{(totals.carbs).toFixed(2)}g</p>
-                            {/* <p className="text-xs">Goal: 250g</p> */}
+                            <p className="text-2xl font-bold">{totals.carbs.toFixed(2)}g</p>
                         </div>
                         <div className="p-4 rounded-xl shadow-md bg-teal-100 text-teal-800">
                             <h3 className="text-sm font-medium">Fats</h3>
-                            <p className="text-2xl font-bold">{(totals.fats).toFixed(2)}g</p>
-                            {/* <p className="text-xs">Goal: 70g</p> */}
+                            <p className="text-2xl font-bold">{totals.fats.toFixed(2)}g</p>
                         </div>
                     </motion.div>
 
@@ -156,21 +173,24 @@ export default function TrackPageDemo() {
                                         cy="50%"
                                         outerRadius={90}
                                         dataKey="value"
-                                        label={({ name, value }) => `${name}: ${Number(value || 0).toFixed(2)}`} // <- ensure numeric
+                                        label={({ name, value }) =>
+                                            `${name}: ${Number(value || 0).toFixed(2)}`
+                                        }
                                     >
                                         {COLORS.map((color, index) => (
                                             <Cell key={index} fill={color} />
                                         ))}
                                     </Pie>
 
-                                    <Tooltip formatter={(value: any) => Number(value || 0).toFixed(2)} /> {/* <- ensure numeric */}
+                                    <Tooltip
+                                        formatter={(value: any) => Number(value || 0).toFixed(2)}
+                                    />
 
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
                         </motion.div>
                     </div>
-
 
                     {/* Food Table */}
                     <div>
@@ -181,7 +201,6 @@ export default function TrackPageDemo() {
                         >
                             <h2 className="font-semibold mb-4 text-green-700">Food Log</h2>
 
-                            {/* Make table scrollable */}
                             <div className="overflow-x-auto">
                                 <table className="table-auto w-full border border-green-200 border-collapse min-w-[500px]">
                                     <thead className="bg-green-100">
@@ -191,17 +210,38 @@ export default function TrackPageDemo() {
                                             <th className="p-3 border border-green-200">Protein</th>
                                             <th className="p-3 border border-green-200">Carbs</th>
                                             <th className="p-3 border border-green-200">Fats</th>
+                                            <th className="p-3 border border-green-200">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {foodsForDate.map((f, i) => (
-                                            <tr key={i} className="hover:bg-green-50 transition-colors duration-200">
+                                        {foodsForDate.map((f) => (
+                                            <tr
+                                                key={f._id}
+                                                className="hover:bg-green-50 transition-colors duration-200"
+                                            >
                                                 <td className="p-3 border border-green-200">{f.name}</td>
-                                                <td className="p-3 border border-green-200">{Number(f.calories || 0).toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{Number(f.protein || 0).toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{Number(f.carbs || 0).toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{Number(f.fats || 0).toFixed(2)}</td>
-
+                                                <td className="p-3 border border-green-200">
+                                                    {Number(f.calories || 0).toFixed(2)}
+                                                </td>
+                                                <td className="p-3 border border-green-200">
+                                                    {Number(f.protein || 0).toFixed(2)}
+                                                </td>
+                                                <td className="p-3 border border-green-200">
+                                                    {Number(f.carbs || 0).toFixed(2)}
+                                                </td>
+                                                <td className="p-3 border border-green-200">
+                                                    {Number(f.fats || 0).toFixed(2)}
+                                                </td>
+                                                <td className="p-3 border border-green-200">
+                                                    <button
+                                                        onClick={async () => {
+                                                            await deleteFood({ foodId: f._id });
+                                                        }}
+                                                        className="text-red-500 hover:text-red-700"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -209,7 +249,6 @@ export default function TrackPageDemo() {
                             </div>
                         </motion.div>
                     </div>
-
                 </div>
             </SignedIn>
 
