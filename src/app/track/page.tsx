@@ -156,13 +156,15 @@ export default function TrackPageDemo() {
                                         cy="50%"
                                         outerRadius={90}
                                         dataKey="value"
-                                        label={({ name, value }) => `${name}: ${value.toFixed(2)}`} // rounded to 2 decimals
+                                        label={({ name, value }) => `${name}: ${Number(value || 0).toFixed(2)}`} // <- ensure numeric
                                     >
                                         {COLORS.map((color, index) => (
                                             <Cell key={index} fill={color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number) => value.toFixed(2)} /> {/* Tooltip rounded */}
+
+                                    <Tooltip formatter={(value: any) => Number(value || 0).toFixed(2)} /> {/* <- ensure numeric */}
+
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -195,10 +197,11 @@ export default function TrackPageDemo() {
                                         {foodsForDate.map((f, i) => (
                                             <tr key={i} className="hover:bg-green-50 transition-colors duration-200">
                                                 <td className="p-3 border border-green-200">{f.name}</td>
-                                                <td className="p-3 border border-green-200">{f.calories.toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{f.protein.toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{f.carbs.toFixed(2)}</td>
-                                                <td className="p-3 border border-green-200">{f.fats.toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.calories || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.protein || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.carbs || 0).toFixed(2)}</td>
+                                                <td className="p-3 border border-green-200">{Number(f.fats || 0).toFixed(2)}</td>
+
                                             </tr>
                                         ))}
                                     </tbody>
