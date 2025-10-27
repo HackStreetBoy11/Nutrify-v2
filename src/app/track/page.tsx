@@ -138,7 +138,7 @@ export default function TrackPageDemo() {
         /* The Component returns a fragment with two conditional parts: SignedIn and SigedOut
          The outer div sets layout and background using Tailwind classes. min-h-screen ensueres full-height background 
         */
-        <>  
+        <>
             <SignedIn>
                 <div className="min-h-screen mt-12 px-6 py-8 bg-gradient-to-b from-green-50 to-white">
                     <motion.h1
@@ -275,7 +275,7 @@ export default function TrackPageDemo() {
                                             <th className="p-3 border border-green-200">Protein</th>
                                             <th className="p-3 border border-green-200">Carbs</th>
                                             <th className="p-3 border border-green-200">Fats</th>
-                                            <th className="p-3 border border-green-200">Action</th>
+                                            <th className="p-3 border border-green-200">Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
