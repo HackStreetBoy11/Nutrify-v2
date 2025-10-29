@@ -1,22 +1,28 @@
 "use client";
-// client side component
+// STEP 1️⃣: Marks this file as a client component (runs in the browser)
 
 import { useState, useMemo } from "react";
-// useState manages local component state
-// useMemo memorizes computed vales to avoid unnecessary recalculations on every render (used for foodsForDate)
+// STEP 2️⃣: Import hooks for local state (useState) and memoized computation (useMemo)
+
 import { motion } from "framer-motion";
+// STEP 3️⃣: Import motion for animation
+
 import { SignedIn, SignedOut, RedirectToSignIn, useUser } from "@clerk/nextjs";
-// SignedIn and SignedOut are Conditional components reder children only when user is signed in/out
-// RedirectToSignIn is a helper that redirects unauthenticated users to clerk's sign-in page
-// useUser() is a hook that returns the current authenticated user object and auth status (userIsSignnedIn, user etc)
-// user object typically contains id, email, firstName, lastName, etc.
+// STEP 4️⃣: Clerk components for authentication
+// useUser() gives the current logged-in user info
+// SignedIn/SignedOut handle conditional rendering based on auth state
+
 import { useQuery, useMutation } from "convex/react";
-// useQuery is a hook to fetch data from convex backend
-// useMutation is a hook to call mutation functions defined in convex backend
+// STEP 5️⃣: Hooks to connect frontend with Convex backend
+// useQuery → fetch data
+// useMutation → perform changes (insert, delete, etc.)
+
 import { Trash2 } from "lucide-react";
-// Icon component Trash2 used as delete button icon
+// STEP 6️⃣: Import trash icon
+
 import { api } from "../../../convex/_generated/api";
-// api is the genenrated client-side API for interacting with convex backend
+// STEP 7️⃣: Convex auto-generated API client used to call queries and mutations
+
 import {
     ResponsiveContainer,
     BarChart,
@@ -30,15 +36,17 @@ import {
     Cell,
     Legend,
 } from "recharts";
-// charting primitives from recharts. Used to render bar chart and pie chart for nutrient visualization
+// STEP 8️⃣: Import recharts components for visualization
+
 import { Id } from "../../../convex/_generated/dataModel";
-// Id generic type for convex document IDs. e.g. Id<"trackedFood"> ensures the _id value has the right type shape. Used for type-safety
-// when calling mutations that require document IDs.
+// STEP 9️⃣: Convex Id type (used for typed DB document references)
+
 
 const COLORS = ["#22c55e", "#86efac", "#bbf7d0", "#166534"];
-// colors used for the pie chart slices. Using an array lets you map them to cell components easily.
+// STEP 🔟: Pie chart colors
 
-// ✅ Type for tracked food entry
+
+// ✅ Local TypeScript type for tracked food entry
 type TrackedFood = {
     _id: string;
     userId: string;
@@ -50,57 +58,43 @@ type TrackedFood = {
     fats?: number;
     date: string;
 };
-// A local typescript type describing a tracked food document
-// _id is string here (convex Id<> typically has a specific runtime structure,casting to string is okay for rendering keys.)
-// nutritional fields are optional (?) because some logged items might lack detiled nutrition.
+
+// STEP 1️⃣1️⃣: Defines structure of tracked food data
 
 export default function TrackPageDemo() {
+    // STEP 1️⃣2️⃣: Functional component starts here
+
     const { user } = useUser();
-    // destructures the user object from clerk's useUser hook
-    // user may be undefined while clerk finishes loading the auth  state , so check for its existance  before using fileds like 
-    // user.id
+    // STEP 1️⃣3️⃣: Get current logged-in user from Clerk
+
     const deleteFoodMutation = useMutation(api.trackedFood.deleteFood);
-    // creates a mutation function to delete tracked food entries by calling the deleteFood mutation defined in convex backend
-    // deleteFoodMutation will bbe a funciton you can await to call the server-side mutation. It's typed according to api.trackedFood.deleteFood
-    //arguements.
+    // STEP 1️⃣4️⃣: Prepare a Convex mutation function to delete food entry
+
     const [selectedDate, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
-    // Local seletedDate state initialized to today in yyyy-mm-dd format.
-    // toISOString().split("T")[0] yields 2025-10-22 style string: good for HTML <input type="date"> value
-    // setSelectedDate update the date when user changes the date picker input
+    // STEP 1️⃣5️⃣: Manage selectedDate (default → today in YYYY-MM-DD)
+
     const convexUser = useQuery(api.users.getUserByClerkId, {
         clerkId: user?.id || "",
     });
-    // calls api.users.getUserByClerkId with{clerkId} 
-    // important runtime detail: user might be undefined initially ; the code passes user?.id || "". if the convex query expects a non-empty
-    /*  clerkId, this may return no user or an error depending on how the server handler hanldes empty string. A common pattern is to pass a \
-    sentinel (e.g. "skip" or null )to useQuery to avoid running untill user exists -- check your convex query's expectations
-    convexUser will be undefined while the query is loading, or the user object when available. 
-    */
+    // STEP 1️⃣6️⃣: Fetch the Convex user document using Clerk ID
+    // While user is loading, this might return undefined temporarily
 
     const trackedFoods = useQuery(
         api.trackedFood.getTrackedFoods,
         convexUser?._id ? { userId: convexUser._id } : "skip"
     ) as TrackedFood[] | null;
-    /*
-        calls getTrackedFoods with {userId} when convexUser._id is truthy; otherwise passes "skip"
-        "skip " is used here as a sentinel to prevent executing the query until we have a valid userId
-        typecast to TrackedFood[] | null to help typescript for later uasge. At runtime trackedFoods may be undefined or null while 
-        loading, your casting assumes null for non-run , but be careful about runtime undefined,
-        getTrackedFoods likely returns a list of documents for that user, live-updated. convex auto pushes updates to subscribeers
-    */
+    // STEP 1️⃣7️⃣: Once convexUser is loaded, fetch their tracked foods
+    // Passing "skip" prevents premature query execution before user is known
 
     const foodsForDate = useMemo(() => {
         if (!trackedFoods) return [];
         return trackedFoods.filter((f) => f.date === selectedDate);
     }, [trackedFoods, selectedDate]);
-    /*
-        useMemo memorizes the filtered list (foodsForDate) so it only re-computes when trackedFoods or selectedDate changes.
-        if trackedFoods is falsy(e.g. null /undefined), reuturns an empty array to avoid errors.
-        filtering uses strict equality on f.date and seletedDate, Make sure the date saved in DB uses the exact same yyyy-mm-dd 
-        string format to match properly.
-    */
+    // STEP 1️⃣8️⃣: Filter foods for the selected date
+    // Memoized to avoid recalculating unless dependencies change
+
     const totals = foodsForDate.reduce(
         (acc, f) => ({
             calories: acc.calories + (f.calories || 0),
@@ -109,38 +103,37 @@ export default function TrackPageDemo() {
             fats: acc.fats + (f.fats || 0),
         }),
         { calories: 0, protein: 0, carbs: 0, fats: 0 }
+
+//      example   [
+//   { name: "Apple", calories: 52, protein: 0.3, carbs: 14, fats: 0.2 },
+//   { name: "Eggs", calories: 78, protein: 6, carbs: 0.6, fats: 5 },
+// ];
+
+        
     );
-    /*
-        Reduces foodsForDate into an aggregated totals object.
-        uses (f.calores || 0) to safely treat missing values as 0. if you expect 0 explicit values and want to treat null differently,
-        consider typeof f.calories === "number" ? f.calories : 0
-        totals will be {caloreis: number, protein:umber ,carbs:number, fats:number}
-    */
+    // STEP 1️⃣9️⃣: Aggregate totals (sum of nutrients)
+
     const chartData = [
         { name: "Calories", value: totals.calories },
         { name: "Protein", value: totals.protein },
         { name: "Carbs", value: totals.carbs },
         { name: "Fats", value: totals.fats },
     ];
-
-
     const pieData = [
         { name: "Protein", value: totals.protein },
         { name: "Carbs", value: totals.carbs },
         { name: "Fats", value: totals.fats },
     ];
-    /*
-        chartData is used for Barchart (inclues calories)
-        pieData is used for PieChart (macros only).
-        if all vales are zero , charts will be empty/flat; you might want to show a placeholder message in that case.
-    */
+    // STEP 2️⃣0️⃣: Prepare chart data for visual representation
+
+
     return (
-        /* The Component returns a fragment with two conditional parts: SignedIn and SigedOut
-         The outer div sets layout and background using Tailwind classes. min-h-screen ensueres full-height background 
-        */
         <>
+            {/* STEP 2️⃣1️⃣: Renders only when user is signed in */}
             <SignedIn>
                 <div className="min-h-screen mt-12 px-6 py-8 bg-gradient-to-b from-green-50 to-white">
+                    {/* STEP 2️⃣2️⃣: Page layout wrapper with background */}
+
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -149,12 +142,9 @@ export default function TrackPageDemo() {
                     >
                         🌿 Nutrify Tracker
                     </motion.h1>
-                    {/* 
-                        Animated header using framer-motion.
-                        initial sets start state, animate sets ends state, and transition configures timing. Nice UX polish.
-                    */}
+                    {/* STEP 2️⃣3️⃣: Animated title */}
 
-                    {/* Date Picker */}
+                    {/* STEP 2️⃣4️⃣: Date Picker */}
                     <div className="flex justify-center mb-6">
                         <input
                             type="date"
@@ -163,13 +153,8 @@ export default function TrackPageDemo() {
                             className="border border-green-300 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                         />
                     </div>
-                    {/* 
-                        Simple date input center-aligned
-                        value bound to selectedDate; onchange updates state
-                        good: using yyyy-mm-dd string matches <input type=date> value format
-                    */}
 
-                    {/* Stat Cards */}
+                    {/* STEP 2️⃣5️⃣: Summary Stat Cards */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -192,14 +177,10 @@ export default function TrackPageDemo() {
                             <p className="text-2xl font-bold">{totals.fats.toFixed(2)}g</p>
                         </div>
                     </motion.div>
-                    {/* 
-                        Grid of four summary cards.
-                        totals.*.toFixed(2) renders numbers with two decimal (e.g. 123.00). if you want intergers for calories, 
-                        you might use Math.round or toFixed(0) -calories often shown as intergers
-                        visual styling via Tailwind colors.
-                    */}
-                    {/* Charts */}
+
+                    {/* STEP 2️⃣6️⃣: Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        {/* Bar Chart */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -217,13 +198,8 @@ export default function TrackPageDemo() {
                                 </BarChart>
                             </ResponsiveContainer>
                         </motion.div>
-                        {/* 
-                            ResponsiveContainer makes the chart responsive
-                            Bar uses dataKey="value" must match object in chartData
-                            radius rounds the top corner of bars
-                            if values are large, consider providing domain prop for YAxis to control scale
-                        */}
 
+                        {/* Pie Chart */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -232,7 +208,6 @@ export default function TrackPageDemo() {
                         >
                             <h2 className="font-semibold mb-4 text-green-700">Macro Distribution</h2>
                             <ResponsiveContainer width="100%" height={250}>
-                                {/* PieChart */}
                                 <PieChart>
                                     <Pie
                                         data={pieData}
@@ -249,16 +224,11 @@ export default function TrackPageDemo() {
                                     <Tooltip formatter={(value: any) => Number(value || 0).toFixed(2)} />
                                     <Legend />
                                 </PieChart>
-                                {/* 
-                                Pie uses pieData.cell  components map the COLORS array to slices
-                                label shows slice names and values with 2 decimals. For small values, labels may overlap; Consider 
-                                a legend or tooltip-only display if values are tiny
-                                 */}
                             </ResponsiveContainer>
                         </motion.div>
                     </div>
 
-                    {/* Food Table */}
+                    {/* STEP 2️⃣7️⃣: Food Table */}
                     <div>
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -289,6 +259,7 @@ export default function TrackPageDemo() {
                                                 <td className="p-3 border border-green-200">
                                                     <button
                                                         onClick={async () => {
+                                                            // STEP 2️⃣8️⃣: Delete button → triggers Convex mutation
                                                             await deleteFoodMutation({ foodId: f._id as Id<"trackedFood"> });
                                                         }}
                                                         className="text-red-500 hover:text-red-700"
@@ -303,16 +274,10 @@ export default function TrackPageDemo() {
                             </div>
                         </motion.div>
                     </div>
-                    {/* 
-                        Table header defines colums
-                        foodsForDate.map iterates over filterd food enteries for the selected day. Each row uses f._id as key (good)
-                        Nutrient values are printed with Number(...).toFixed(2) for consistent 2-decimal display
-                        Delete button calls deleteFoodMutation with foodId when clicked. f._id is cast to Id<"trackedFood"> for type-safety
-                        visual styling includes hover effects for rows and buttons
-                    */}
                 </div>
             </SignedIn>
 
+            {/* STEP 2️⃣9️⃣: If user not signed in → Redirect */}
             <SignedOut>
                 <RedirectToSignIn />
             </SignedOut>

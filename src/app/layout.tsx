@@ -1,4 +1,4 @@
-// in layout you just set the priciple that we follow throughout the app.
+ // in layout you just set the priciple that we follow throughout the app.
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -15,6 +15,7 @@ import { Toaster } from "react-hot-toast";
   ./global.css -> Global Css for the app
   ConvexClerkProvider -> Custom provider to wrap convex dataase and clerk auth context for the whole app
   Navbar -> navigation component.
+  .
   SignedIn, SignedOut, RedirectToSignIn -> Components from clerk for authentication handling
   Toaster -> React hot toast notifications
 */
