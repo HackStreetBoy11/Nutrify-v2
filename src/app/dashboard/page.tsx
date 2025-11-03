@@ -231,7 +231,7 @@ export default function DashboardPage() {
         {/* Display search results */}
         {foodItems.length > 0 && (
           <div className="mt-2 bg-white/70 rounded-xl shadow-inner max-h-80 overflow-y-auto border border-green-100">
-            {foodItems.map((item) => (
+            {foodItems.map((item,key) => (
               <div
                 key={item.name}
                 onClick={() => {

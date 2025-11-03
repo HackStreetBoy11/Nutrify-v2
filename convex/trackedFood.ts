@@ -1,6 +1,6 @@
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { sendGoalEmail } from "./email"
 
 /*
   mutation : used for write operations --- inserting , updating or deleting data in your database
@@ -61,11 +61,12 @@ export const addTrackedFood = mutation({
         });
 
         const user = await ctx.db.get(args.userId);
-        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
-          email: user.email,
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail" as any, {
+          email: user!.email,
           subject: "🎯 Goal Completed!",
           message: "You’ve successfully reached your calorie target for today!",
         });
+
       }
       if (totals.protein >= goal.protein) {
         await ctx.db.insert("notifications", {
@@ -76,8 +77,8 @@ export const addTrackedFood = mutation({
         });
 
         const user = await ctx.db.get(args.userId);
-        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
-          email: user.email,
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail" as any, {
+          email: user!.email,
           subject: "🎯 Goal Completed!",
           message: "You’ve successfully reached your protein target for today!",
         });
@@ -91,8 +92,8 @@ export const addTrackedFood = mutation({
         });
 
         const user = await ctx.db.get(args.userId);
-        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
-          email: user.email,
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail" as any, {
+          email: user!.email,
           subject: "🎯 Goal Completed!",
           message: "You’ve successfully reached your carbs target for today!",
         });
@@ -106,8 +107,8 @@ export const addTrackedFood = mutation({
         });
 
         const user = await ctx.db.get(args.userId);
-        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
-          email: user.email,
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail" as any, {
+          email: user!.email,
           subject: "🎯 Goal Completed!",
           message: "You’ve successfully reached your fats target for today!",
         });
