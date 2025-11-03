@@ -65,6 +65,12 @@ export default function TrackPageDemo() {
         clerkId: user?.id || "",
     });
 
+    if (!convexUser?._id) {
+        console.error("User not logged in");
+        return;
+    }
+
+
     const goalData = useQuery(
         api.userGoals.getGoalByDate,
         convexUser?._id
