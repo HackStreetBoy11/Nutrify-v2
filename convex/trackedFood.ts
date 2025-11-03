@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { sendGoalEmail } from "./email"
 
 /*
   mutation : used for write operations --- inserting , updating or deleting data in your database
@@ -21,9 +22,103 @@ export const addTrackedFood = mutation({
     date: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("trackedFood", args);
+    // 1️⃣ Insert the new food
+    const inserted = await ctx.db.insert("trackedFood", args);
+
+    // 2️⃣ Fetch today's goal for this user
+    const goal = await ctx.db
+      .query("userGoals")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .filter((q) => q.eq(q.field("date"), args.date))
+      .first();
+
+    // 3️⃣ Get all tracked foods for this date to calculate total
+    const foods = await ctx.db
+      .query("trackedFood")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .filter((q) => q.eq(q.field("date"), args.date))
+      .collect();
+
+    // 4️⃣ Calculate totals
+    const totals = foods.reduce(
+      (acc, f) => ({
+        calories: acc.calories + (f.calories || 0),
+        protein: acc.protein + (f.protein || 0),
+        carbs: acc.carbs + (f.carbs || 0),
+        fats: acc.fats + (f.fats || 0),
+      }),
+      { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    );
+
+    // 5️⃣ Check if goal is reached
+    if (goal) {
+      if (totals.calories >= goal.calories) {
+        await ctx.db.insert("notifications", {
+          userId: args.userId,
+          type: "calories",
+          message: "🎯 You’ve reached your calorie goal for today!",
+          sentAt: Date.now(),
+        });
+
+        const user = await ctx.db.get(args.userId);
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
+          email: user.email,
+          subject: "🎯 Goal Completed!",
+          message: "You’ve successfully reached your calorie target for today!",
+        });
+      }
+      if (totals.protein >= goal.protein) {
+        await ctx.db.insert("notifications", {
+          userId: args.userId,
+          type: "protein",
+          message: "💪 You’ve hit your protein target!",
+          sentAt: Date.now(),
+        });
+
+        const user = await ctx.db.get(args.userId);
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
+          email: user.email,
+          subject: "🎯 Goal Completed!",
+          message: "You’ve successfully reached your protein target for today!",
+        });
+      }
+      if (totals.carbs >= goal.carbs) {
+        await ctx.db.insert("notifications", {
+          userId: args.userId,
+          type: "carbs",
+          message: "🥖 You’ve completed your carbs goal!",
+          sentAt: Date.now(),
+        });
+
+        const user = await ctx.db.get(args.userId);
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
+          email: user.email,
+          subject: "🎯 Goal Completed!",
+          message: "You’ve successfully reached your carbs target for today!",
+        });
+      }
+      if (totals.fats >= goal.fats) {
+        await ctx.db.insert("notifications", {
+          userId: args.userId,
+          type: "fats",
+          message: "🧈 You’ve met your fats goal!",
+          sentAt: Date.now(),
+        });
+
+        const user = await ctx.db.get(args.userId);
+        await ctx.scheduler.runAfter(0, "email:sendGoalEmail", {
+          email: user.email,
+          subject: "🎯 Goal Completed!",
+          message: "You’ve successfully reached your fats target for today!",
+        });
+      }
+    }
+
+    // 6️⃣ Return inserted food entry
+    return inserted;
   },
 });
+
 /* 
 Purpose: Add a food entry for a user.
 args: Arguments passed from frontend --- all the data fields for a food entry
@@ -55,6 +150,7 @@ export const getTrackedFoods = query({
       .order("desc")
       .collect();
   },
+
 });
 
 /*
@@ -75,7 +171,7 @@ export const getTrackedFoods = query({
 export const deleteFood = mutation({
   args: { foodId: v.id("trackedFood") },
   handler: async (ctx, { foodId }) => {
-    await ctx.db.delete( foodId);
+    await ctx.db.delete(foodId);
     return { success: true };
   },
 });
@@ -88,6 +184,7 @@ export const deleteFood = mutation({
   await mutation('deleteFood', { id: foodId });
   Frontend sends the id → backend safely deletes the entry.
 */
+
 
 
 // SUMMARY----

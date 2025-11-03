@@ -57,6 +57,12 @@ export async function POST(req: Request) {
     const data = await response.json();
     console.log("📥 OpenAI response:", data);
     // ✅ Check for errors from OpenAI
+    console.log("🧾 Token usage:", data.usage);
+    if (data.usage) {
+        const total = data.usage.total_tokens || 0;
+        const cost = (total / 1_000_000) * 0.15; // approximate for gpt-4o-mini
+        console.log(`💰 Estimated cost: ~$${cost.toFixed(6)} for this request`);
+    }
 
     // STEP 8 — Error handling: if OpenAI returns an error, return a friendly message
     if (data.error) {

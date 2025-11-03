@@ -1,14 +1,13 @@
- // in layout you just set the priciple that we follow throughout the app.
+// in layout you just set the priciple that we follow throughout the app.
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConvexClerkProvider from "@/components/providers/ConvexClerkProvider";
 
-import Navbar from "@/components/Navbar";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
-
+import Navbar from "@/components/Navbar";
 /*
   MetaData -> type for the metaData object used by Next.js (page title, description)
   Geist, Geist_Mono -> google fonts imported via Next.js font opimization
@@ -61,7 +60,7 @@ export default function RootLayout({
           <SignedOut>
             <RedirectToSignIn />
           </SignedOut>
-          <Toaster/>
+          <Toaster />
         </body>
       </html>
     </ConvexClerkProvider>
