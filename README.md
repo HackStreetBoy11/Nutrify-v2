@@ -8,6 +8,58 @@ Nutrify is a live food tracking application built with **Next.js and TypeScript*
 It helps users monitor their daily nutrient intake in real-time, fetches accurate nutritional data via APIs, and stores all user data securely in the cloud using **Convex**.  
 The app features **Clerk authentication** for secure login and uses **ShadCN** for sleek, responsive UI components.  
 It combines a modern frontend with a powerful backend for seamless tracking and personalized health insights.
+# Nutrifiy 🥗
+
+## Overview
+Nutrifiy is a real-time nutrition tracking web application that helps users
+analyze meals and receive personalized dietary insights. It integrates USDA
+nutrition data and an AI model to generate intelligent meal recommendations.
+
+---
+
+## Features
+- Secure user authentication using Clerk
+- Real-time backend synchronization using Convex
+- Nutrition data fetched from USDA API
+- AI-powered personalized meal insights
+- Responsive UI built with Next.js and Tailwind CSS
+
+---
+
+## Tech Stack
+- Frontend: Next.js, Tailwind CSS
+- Backend: Convex (BaaS)
+- Authentication: Clerk
+- APIs: USDA Nutrition API, OpenAI LLM
+- Deployment: Vercel
+
+---
+
+## Architecture
+1. User authenticates using Clerk.
+2. User enters meal information.
+3. Convex handles backend logic and real-time sync.
+4. USDA API provides nutritional values.
+5. OpenAI LLM generates meal insights.
+6. Results are displayed instantly on the UI.
+
+---
+
+## Challenges & Learnings
+- Implemented real-time data synchronization using Convex.
+- Managed authentication flows with Clerk.
+- Integrated third-party APIs efficiently.
+- Learned prompt design for meaningful AI outputs.
+
+---
+
+## Getting Started
+```bash
+git clone https://github.com/your-username/nutrifiy.git
+cd nutrify
+npm install
+npm run dev
+
 
 🧰 Tech Stack
 <div align="center">
