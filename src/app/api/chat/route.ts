@@ -39,14 +39,14 @@ export async function POST(req: Request) {
 
     // STEP 6 — Call OpenAI Chat Completions (server-side; safe to keep API key on server)
     //          You should ensure process.env.OPENAI_API_KEY is set in your environment / hosting
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: "openai/gpt-oss-120b",
             messages: [
                 { role: "system", content: "You are a nutrition assistant for the app Nutrify." },
                 { role: "user", content: context },
