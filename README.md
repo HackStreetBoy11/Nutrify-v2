@@ -1,6 +1,6 @@
 🚀 Live Deployment  
 
-[Open Live App](https://nutrify-v2.vercel.app/track)
+[Open Live App](https://nutrify-v2.vercel.app/)
 
 
 # Nutrifiy 🥗
